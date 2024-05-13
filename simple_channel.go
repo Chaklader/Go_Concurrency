@@ -28,7 +28,6 @@ func simpleChannel() {
 		_, _ = fmt.Scanln(&userInput)
 
 		if userInput == strings.ToLower("q") {
-			// jump out of for loop
 			break
 		}
 
