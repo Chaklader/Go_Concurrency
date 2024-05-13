@@ -22,29 +22,34 @@ var philosophers = []Philosopher{
 }
 
 var (
-	hunger    = 3
-	eatTime   = 1 * time.Second
-	thinkTime = 3 * time.Second
-	sleepTime = 1 * time.Second
+	eatingPerDay = 3
+	eatTime      = 1 * time.Second
+	thinkTime    = 3 * time.Second
+	sleepTime    = 1 * time.Second
 )
 
-var orderMutex sync.Mutex
-var orderFinished []string
+var (
+	orderMutex    sync.Mutex
+	orderFinished []string
+)
 
 func dine() {
+
+	numOfPhilosophers := len(philosophers)
 
 	/*
 	* wg is the WaitGroup that keeps track of how many philosophers are still at the table. When it reaches zero, everyone
 	* is finished eating and has left.
 	 */
 	wg := &sync.WaitGroup{}
-	wg.Add(len(philosophers))
 
 	/*
 	* We want everyone to be seated before they start eating, so create a WaitGroup for that
 	 */
 	seated := &sync.WaitGroup{}
-	seated.Add(len(philosophers))
+
+	wg.Add(numOfPhilosophers)
+	seated.Add(numOfPhilosophers)
 
 	/*
 	* forks is a map of all 5 forks. Forks are assigned using the fields leftFork and rightFork in the Philosopher type.
@@ -52,11 +57,11 @@ func dine() {
 	 */
 	var forks = make(map[int]*sync.Mutex)
 
-	for i := 0; i < len(philosophers); i++ {
+	for i := 0; i < numOfPhilosophers; i++ {
 		forks[i] = &sync.Mutex{}
 	}
 
-	for i := 0; i < len(philosophers); i++ {
+	for i := 0; i < numOfPhilosophers; i++ {
 		go diningProblem(philosophers[i], wg, seated, forks)
 	}
 
@@ -72,7 +77,7 @@ func diningProblem(philosopher Philosopher, wg *sync.WaitGroup, seated *sync.Wai
 	seated.Done()
 	seated.Wait()
 
-	for i := hunger; i > 0; i-- {
+	for i := eatingPerDay; i > 0; i-- {
 
 		if philosopher.leftFork > philosopher.rightFork {
 			forks[philosopher.rightFork].Lock()
